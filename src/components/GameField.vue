@@ -2,12 +2,32 @@
   <div class="game-field">
     <div class="circle-container">
       <div class="left-col">
-        <div class="circle left-circle-top" id="yellow" @click="handleColorButton"></div>
-        <div class="circle left-circle-bottom" id="red" @click="handleColorButton"></div>
+        <div
+          class="circle left-circle-top"
+          :class="{ 'active': yellowActive }"
+          id="yellow"
+          @click="handleColorButton"
+        ></div>
+        <div
+          class="circle left-circle-bottom"
+          :class="{ 'active': redActive }"
+          id="red"
+          @click="handleColorButton"
+        ></div>
       </div>
       <div class="rigth-col">
-        <div class="circle rigth-circle-top" id="blue" @click="handleColorButton"></div>
-        <div class="circle rigth-circle-bottom" id="green" @click="handleColorButton"></div>
+        <div
+          class="circle rigth-circle-top"
+          :class="{ 'active': blueActive }"
+          id="blue"
+          @click="handleColorButton"
+        ></div>
+        <div
+          class="circle rigth-circle-bottom"
+          :class="{ 'active': greenActive }"
+          id="green"
+          @click="handleColorButton"
+        ></div>
       </div>
     </div>
     <div class="panel">
@@ -30,7 +50,7 @@
           <label>Сложный</label>
         </div>
       </div>
-      <span class="faild-msg">К сожалению, вы ошиблись. Игра окончена.</span>
+      <span class="faild-msg" :class="showErrorMsg">К сожалению, вы ошиблись. Игра окончена.</span>
     </div>
   </div>
 </template>
@@ -46,6 +66,10 @@ const simonSound4 = require("@/assets/sounds/simonSound4.mp3");
 export default {
   name: "GameField",
   data: () => ({
+    greenActive: false,
+    redActive: false,
+    yellowActive: false,
+    blueActive: false,
     complexity: "1500",
     count: "0",
     step: 0,
@@ -76,7 +100,7 @@ export default {
         } else {
           this.playerTurn = false;
           this.count = 0;
-          this.showFailedMsg();
+          this.faildMsg = true;
           return;
         }
       }
@@ -85,7 +109,7 @@ export default {
     // on start button
     start() {
       if (this.faildMsg) {
-        this.clearFalidMsg();
+        this.faildMsg = false;
       }
       this.count = 0;
       this.step = 0;
@@ -129,6 +153,10 @@ export default {
         for (let i = 0; i < sequence.length; i++) {
           setTimeout(() => {
             this.audioSignal(sequence[i]);
+            this.illuminateButtonPoint = true;
+            setTimeout(() => {
+              this.illuminateButtonPoint = false;
+            }, 500);
             this.lightColorButton(sequence[i]);
           }, i * delay);
         }
@@ -159,24 +187,19 @@ export default {
     },
 
     lightColorButton(color) {
-      document.getElementById(color).classList.toggle("active");
+      const activeClass = `${color}Active`;
+      this[activeClass] = true;
       setTimeout(() => {
-        document.getElementById(color).classList.toggle("active");
-      }, 500);
+        this[activeClass] = false;
+      }, 400);
     },
-
-    //show faild msg
-    showFailedMsg() {
-      document.querySelector(".faild-msg").classList.add("show-msg");
-      this.faildMsg = true;
-    },
-
-    clearFalidMsg() {
-      document.querySelector(".faild-msg").classList.remove("show-msg");
+  },
+  computed: {
+    showErrorMsg() {
+      return { "show-msg": this.faildMsg };
     },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="stylus"></style>
